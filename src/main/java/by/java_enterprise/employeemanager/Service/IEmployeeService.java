@@ -7,6 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface IEmployeeService {
-    List<EmployeeResponse> getAll();
+    List<EmployeeResponse> getAll(String position, String name);
     Optional<EmployeeResponse> getById(UUID id);
 }

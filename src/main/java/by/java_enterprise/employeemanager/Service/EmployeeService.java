@@ -17,8 +17,8 @@ public class EmployeeService implements IEmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
-    public List<EmployeeResponse> getAll() {
-        List<Employee> employees = employeeRepository.findAll();
+    public List<EmployeeResponse> getAll(String position, String name) {
+        List<Employee> employees = employeeRepository.findAll(position, name);
 
         return employees.stream()
                 .map(employee -> new EmployeeResponse(

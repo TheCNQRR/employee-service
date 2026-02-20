@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,9 +19,24 @@ public class EmployeeRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Employee> findAll() {
-        String sql = "SELECT * FROM employee";
-        return jdbcTemplate.query(sql, (result, rowNumber) -> {
+    public List<Employee> findAll(String position, String name) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM employee");
+        List<String> parameters = new ArrayList<>();
+
+        if (position != null && !position.isBlank()) {
+            parameters.add("position = ?");
+        }
+
+        if (name != null && !name.isBlank()) {
+            parameters.add("name = ?");
+        }
+
+        if (!parameters.isEmpty()) {
+            sql.append(" WHERE ");
+            sql.append(String.join(" AND ", parameters));
+        }
+
+        return jdbcTemplate.query(sql.toString(), (result, rowNumber) -> {
             Employee employee = new Employee();
             employee.setId(result.getObject("id", UUID.class));
             employee.setName(result.getString("name"));
