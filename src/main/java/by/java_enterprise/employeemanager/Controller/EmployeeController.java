@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/employee")
 public class EmployeeController {
     @Autowired
     private IEmployeeService employeeService;
 
-    @GetMapping("/employees")
+    @GetMapping()
     public ResponseEntity<GetAllEmployeesResponse> getEmployees(
             @RequestParam(required = false) String position,
             @RequestParam(required = false) String name) {
@@ -29,24 +29,16 @@ public class EmployeeController {
                 .body(response);
     }
 
-    @GetMapping("/employee/{id}")
-    public ResponseEntity<Optional<EmployeeResponse>> getEmployeeById(@RequestHeader(value = "Authorization", required = false) String callerId,
-                                                            @PathVariable String id) {
-        Optional<EmployeeResponse> employee = employeeService.getById(id, callerId);
+    @GetMapping("/single")
+    public ResponseEntity<Optional<EmployeeResponse>> getEmployeeById(@RequestHeader("Authorization") String callerId,
+                                                            @RequestBody GetEmployeeRequest request) {
+        Optional<EmployeeResponse> employee = employeeService.getById(callerId, request.id());
 
         return employee.isPresent() ? ResponseEntity.status(HttpStatus.OK).body(employee) :
                 ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<Optional<EmployeeResponse>> getMe(@RequestHeader("Authorization") String id) {
-        Optional<EmployeeResponse> employee = employeeService.getMe(id);
-
-        return employee.isPresent() ? ResponseEntity.status(HttpStatus.OK).body(employee) :
-                ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @PostMapping("/employee")
+    @PostMapping()
     public ResponseEntity<CreateEmployeeResponse> createEmployee(@RequestBody CreateEmployeeRequest request) {
         Optional<EmployeeResponse> employee = employeeService.createEmployee(request.name(), request.position(), request.id());
 
@@ -57,4 +49,5 @@ public class EmployeeController {
         return employee.isPresent() ? ResponseEntity.status(HttpStatus.CREATED).body(response) :
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
 }

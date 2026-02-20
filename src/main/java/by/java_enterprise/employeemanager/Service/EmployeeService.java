@@ -32,7 +32,7 @@ public class EmployeeService implements IEmployeeService {
                 )).toList();
     }
 
-    public Optional<EmployeeResponse> getById(String targetId, @Nullable String callerId) {
+    public Optional<EmployeeResponse> getById(String callerId, @Nullable String targetId) {
         UUID callerUuid = function.convertId(callerId);
         UUID targetUuid = function.convertId(targetId);
 
@@ -63,17 +63,6 @@ public class EmployeeService implements IEmployeeService {
                 employee.getName(),
                 employee.getPosition()
         ));
-    }
-
-    public Optional<EmployeeResponse> getMe(String id) {
-        UUID uuid = function.convertId(id);
-        Optional<Employee> employee = employeeRepository.findById(uuid);
-
-        return employee.isPresent() ? employee.map(it -> new EmployeeResponse(
-                it.getId().toString().replace("-", ""),
-                it.getName(),
-                it.getPosition()
-        )) : Optional.empty();
     }
 
     public Optional<EmployeeResponse> createEmployee(String name, Position position, @Nullable String id) {

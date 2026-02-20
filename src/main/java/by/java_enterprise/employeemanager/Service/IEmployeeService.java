@@ -10,6 +10,5 @@ import java.util.Optional;
 public interface IEmployeeService {
     List<EmployeeResponse> getAll(String position, String name);
     Optional<EmployeeResponse> getById(String callerId, String id);
-    Optional<EmployeeResponse> getMe(String id);
     Optional<EmployeeResponse> createEmployee(String name, Position position, @Nullable String id);
 }
