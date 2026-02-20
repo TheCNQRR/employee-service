@@ -2,6 +2,7 @@ package by.java_enterprise.employeemanager.Repository;
 
 import by.java_enterprise.employeemanager.Model.Employee;
 import by.java_enterprise.employeemanager.Model.Position;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -12,6 +13,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
+@Slf4j
+@SuppressWarnings({"SqlSourceToSinkFlow", "LoggingSimilarMessage"})
 public class EmployeeRepository {
     private final JdbcTemplate jdbcTemplate;
 
@@ -38,6 +41,8 @@ public class EmployeeRepository {
             sql.append(" WHERE ");
             sql.append(String.join(" AND ", conditions));
         }
+
+        log.debug("Executing SQL: {}", sql);
 
         return jdbcTemplate.query(sql.toString(), parameters.toArray(), (result, rowNumber) -> {
             Employee employee = new Employee();
@@ -66,6 +71,7 @@ public class EmployeeRepository {
 
             return Optional.ofNullable(employee);
         } catch (EmptyResultDataAccessException e) {
+            log.debug("Exception {}", e.getMessage());
             return Optional.empty();
         }
     }
@@ -79,6 +85,7 @@ public class EmployeeRepository {
             jdbcTemplate.update(sql, employee.getId(), employee.getName(), employee.getPosition().name());
             return Optional.of(employee);
         } catch (Exception e) {
+            log.debug("Exception {}", e.getMessage());
             return Optional.empty();
         }
     }
@@ -94,6 +101,7 @@ public class EmployeeRepository {
             jdbcTemplate.update(sql, employee.getName(), employee.getPosition().name(), employee.getId());
             return Optional.of(employee);
         } catch (EmptyResultDataAccessException e) {
+            log.debug("Exception {}", e.getMessage());
             return Optional.empty();
         }
     }
@@ -108,6 +116,7 @@ public class EmployeeRepository {
             jdbcTemplate.update(sql, employee.getPosition().name(), employee.getId());
             return Optional.of(employee);
         } catch (EmptyResultDataAccessException e) {
+            log.debug("Exception {}", e.getMessage());
             return Optional.empty();
         }
     }
