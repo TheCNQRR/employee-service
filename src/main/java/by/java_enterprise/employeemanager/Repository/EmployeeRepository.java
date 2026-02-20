@@ -66,4 +66,17 @@ public class EmployeeRepository {
             return Optional.empty();
         }
     }
+
+    public Optional<Employee> createEmployee(Employee employee) {
+        String sql = """
+                    INSERT INTO employee (id, name, position) VALUES
+                    (?, ?, ?)
+                    """;
+        try {
+            jdbcTemplate.update(sql, employee.getId(), employee.getName(), employee.getPosition().name());
+            return Optional.of(employee);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
 }
