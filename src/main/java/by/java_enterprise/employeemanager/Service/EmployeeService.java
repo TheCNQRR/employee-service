@@ -122,4 +122,40 @@ public class EmployeeService {
                 it.getName(),
                 it.getPosition())) : Optional.empty();
     }
+
+    public Optional<EmployeeResponse> deleteEmployee(DeleteEmployeeRequest request) {
+        UUID callerUuid = function.convertId(request.callerId());
+        UUID targetUuid = function.convertId(request.targetId());
+
+        Optional<Employee> caller = employeeRepository.findById(callerUuid);
+        Optional<Employee> target = employeeRepository.findById(targetUuid);
+
+        if (caller.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (target.isEmpty()) {
+            Optional<Employee> result = employeeRepository.deleteEmployee(caller.get());
+            return result.isPresent() ? result.map(it -> new EmployeeResponse(
+                    it.getId().toString().replace("-", ""),
+                    it.getName(),
+                    it.getPosition())) : Optional.empty();
+        }
+
+        Employee callerEmployee = caller.get();
+        Employee targetEmployee = target.get();
+
+        boolean access = callerEmployee.equals(targetEmployee) || (callerEmployee.getPosition() == Position.Administrator);
+
+        Employee employee = access ? targetEmployee : callerEmployee;
+
+        employee.setPosition(Position.Deleted);
+
+        Optional<Employee> result = employeeRepository.deleteEmployee(employee);
+
+        return result.isPresent() ? result.map(it -> new EmployeeResponse(
+                it.getId().toString().replace("-", ""),
+                it.getName(),
+                it.getPosition())) : Optional.empty();
+    }
 }

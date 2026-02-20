@@ -2,7 +2,6 @@ package by.java_enterprise.employeemanager.Controller;
 
 import by.java_enterprise.employeemanager.DTO.employee.*;
 import by.java_enterprise.employeemanager.Service.EmployeeService;
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +33,7 @@ public class EmployeeController {
 
     @GetMapping("/single")
     public ResponseEntity<Optional<EmployeeResponse>> getEmployeeById(@RequestHeader("Authorization") String callerId,
-                                                                      @RequestBody @Nullable String targetId) {
+                                                                      @RequestParam(required = false) String targetId) {
         GetEmployeeRequest request = new GetEmployeeRequest(callerId, targetId);
         Optional<EmployeeResponse> employee = employeeService.getById(request);
 
@@ -67,4 +66,18 @@ public class EmployeeController {
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
+    @DeleteMapping
+    public ResponseEntity<DeleteEmployeeResponse> deleteEmployee(@RequestHeader("Authorization") String callerId,
+                                                                 @RequestParam(required = false) String targetId) {
+        DeleteEmployeeRequest request = new DeleteEmployeeRequest(callerId, targetId);
+
+        Optional<EmployeeResponse> employee = employeeService.deleteEmployee(request);
+
+        DeleteEmployeeResponse response = employee.map(employeeResponse ->
+                new DeleteEmployeeResponse(Status.SUCCESS, employeeResponse.id())).orElseGet(() ->
+                new DeleteEmployeeResponse(Status.FAILURE, null));
+
+        return employee.isPresent() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(response) :
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
 }

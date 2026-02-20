@@ -21,22 +21,25 @@ public class EmployeeRepository {
 
     public List<Employee> findAll(String position, String name) {
         StringBuilder sql = new StringBuilder("SELECT * FROM employee");
-        List<String> parameters = new ArrayList<>();
+        List<Object> parameters = new ArrayList<>();
+        List<String> conditions = new ArrayList<>();
 
         if (position != null && !position.isBlank()) {
-            parameters.add("position = ?");
+            conditions.add("position = ?");
+            parameters.add(position);
         }
 
         if (name != null && !name.isBlank()) {
-            parameters.add("name = ?");
+            conditions.add("name = ?");
+            parameters.add(name);
         }
 
-        if (!parameters.isEmpty()) {
+        if (!conditions.isEmpty()) {
             sql.append(" WHERE ");
-            sql.append(String.join(" AND ", parameters));
+            sql.append(String.join(" AND ", conditions));
         }
 
-        return jdbcTemplate.query(sql.toString(), (result, rowNumber) -> {
+        return jdbcTemplate.query(sql.toString(), parameters.toArray(), (result, rowNumber) -> {
             Employee employee = new Employee();
             employee.setId(result.getObject("id", UUID.class));
             employee.setName(result.getString("name"));
@@ -88,7 +91,21 @@ public class EmployeeRepository {
                 WHERE id = ?
                 """;
         try {
-            jdbcTemplate.update(sql, employee.getName(), employee.getPosition(), employee.getId());
+            jdbcTemplate.update(sql, employee.getName(), employee.getPosition().name(), employee.getId());
+            return Optional.of(employee);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Employee> deleteEmployee(Employee employee) {
+        String sql = """
+                UPDATE employee
+                SET position = ?
+                WHERE id = ?
+                """;
+        try {
+            jdbcTemplate.update(sql, employee.getPosition().name(), employee.getId());
             return Optional.of(employee);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
