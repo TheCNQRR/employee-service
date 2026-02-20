@@ -5,9 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public record GetAllEmployeesResponse(
-    @JsonProperty("members")
-    List<EmployeeResponse> employees,
+        @JsonProperty("members")
+        List<EmployeeResponse> employees,
 
-    @JsonProperty("totalCount")
-    Integer TotalCount
-) {}
+        @JsonProperty("totalCount")
+        Integer TotalCount
+) {
+}

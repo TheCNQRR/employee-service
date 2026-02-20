@@ -48,9 +48,9 @@ public class EmployeeRepository {
 
     public Optional<Employee> findById(UUID id) {
         String sql = """
-                     SELECT * FROM employee
-                     WHERE id = ?
-                     """;
+                SELECT * FROM employee
+                WHERE id = ?
+                """;
         try {
             var employee = jdbcTemplate.queryForObject(sql, (result, rowNumber) -> {
                 Employee e = new Employee();
@@ -69,13 +69,28 @@ public class EmployeeRepository {
 
     public Optional<Employee> createEmployee(Employee employee) {
         String sql = """
-                    INSERT INTO employee (id, name, position) VALUES
-                    (?, ?, ?)
-                    """;
+                INSERT INTO employee (id, name, position) VALUES
+                (?, ?, ?)
+                """;
         try {
             jdbcTemplate.update(sql, employee.getId(), employee.getName(), employee.getPosition().name());
             return Optional.of(employee);
         } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Employee> updateEmployee(Employee employee) {
+        String sql = """
+                UPDATE employee
+                SET name = ?,
+                    position = ?
+                WHERE id = ?
+                """;
+        try {
+            jdbcTemplate.update(sql, employee.getName(), employee.getPosition(), employee.getId());
+            return Optional.of(employee);
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
